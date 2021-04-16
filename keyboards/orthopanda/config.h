@@ -23,13 +23,18 @@
 #define MATRIX_COL_PINS {}
 #define UNUSED_PINS
 
-/* pins MCP23017 */
+/* pins MCP23S17 */
 // GPA0_7: col14 -> col7
 // GPB0_7: col0 -> col6 + rotary encoder button
 #define MCP23_ROW_PINS {}
 #define MCP23_COL_PINS { GPA0, GPA1, GPA2, GPA3, GPA4, GPA5, GPA6, GPB7, GPB6, GPB5, GPB4, GPB3, GPB2, GPB1, GPB0 }
 #define MCP23_ROTARY_ENCODER_BUTTON GPA7
 
+// Change SPI Slave Select pin
+#ifdef SPI_SS_PIN
+#undef SPI_SS_PIN
+#endif
+#define SPI_SS_PIN F5
 
 /* COL2ROW or ROW2COL */
 #define DIODE_DIRECTION COL2ROW

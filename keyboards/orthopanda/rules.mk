@@ -1,0 +1,3 @@
+CUSTOM_MATRIX = lite
+SRC += matrix.c
+SRC += MCP23S17/MCP23S17.c
