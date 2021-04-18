@@ -23,6 +23,24 @@
 #define MATRIX_COL_PINS {}
 #define UNUSED_PINS
 
+/* MCP23S17 GPIO pins */
+#define    GPA0      (0)
+#define    GPA1      (1)
+#define    GPA2      (2)
+#define    GPA3      (3)
+#define    GPA4      (4)
+#define    GPA5      (5)
+#define    GPA6      (6)
+#define    GPA7      (7)
+#define    GPB0      (8)
+#define    GPB1      (9)
+#define    GPB2      (10)
+#define    GPB3      (11)
+#define    GPB4      (12)
+#define    GPB5      (13)
+#define    GPB6      (14)
+#define    GPB7      (15)
+
 /* pins MCP23S17 */
 // GPA0_7: col14 -> col7
 // GPB0_7: col0 -> col6 + rotary encoder button

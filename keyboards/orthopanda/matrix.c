@@ -6,28 +6,6 @@
 
 */
 
-/*
-uint8_t matrix_scan(void) {
-    bool changed = false;
-
-#if defined(DIRECT_PINS) || (DIODE_DIRECTION == COL2ROW)
-    // Set row, read cols
-    for (uint8_t current_row = 0; current_row < MATRIX_ROWS; current_row++) {
-        changed |= read_cols_on_row(raw_matrix, current_row);
-    }
-#elif (DIODE_DIRECTION == ROW2COL)
-    // Set col, read rows
-    for (uint8_t current_col = 0; current_col < MATRIX_COLS; current_col++) {
-        changed |= read_rows_on_col(raw_matrix, current_col);
-    }
-#endif
-
-    debounce(raw_matrix, matrix, MATRIX_ROWS, changed);
-
-    matrix_scan_quantum();
-    return (uint8_t)changed;
-}
-*/
 // TODO: Support DIRECT_PINS/ROW2COL/COL2ROW macros
 
 #include <stdint.h>
@@ -37,19 +15,15 @@ uint8_t matrix_scan(void) {
 #include "debounce.h"
 #include "quantum.h"
 
-// Include custom MCP23S17 support
+// Custom MCP23S17 support
 #include "MCP23S17/MCP23S17.h"
 
 #ifdef DIRECT_PINS
 static pin_t direct_pins[MATRIX_ROWS][MATRIX_COLS] = DIRECT_PINS;
 #elif (DIODE_DIRECTION == ROW2COL) || (DIODE_DIRECTION == COL2ROW)
 static const pin_t row_pins[MATRIX_ROWS] = MATRIX_ROW_PINS;
-static const pin_t col_pins[MATRIX_COLS] = MATRIX_COL_PINS;
+static const uint8_t mcp_col_pins[MATRIX_COLS] = MCP23_COL_PINS;
 #endif
-
-/* matrix state(1:on, 0:off) */
-extern matrix_row_t raw_matrix[MATRIX_ROWS];  // raw values
-extern matrix_row_t matrix[MATRIX_ROWS];      // debounced values
 
 static inline void setPinOutput_writeLow(pin_t pin) {
     ATOMIC_BLOCK_FORCEON {
@@ -61,6 +35,22 @@ static inline void setPinOutput_writeLow(pin_t pin) {
 static inline void setPinInputHigh_atomic(pin_t pin) {
     ATOMIC_BLOCK_FORCEON { setPinInputHigh(pin); }
 }
+
+static inline uint8_t MCP_readPin(uint8_t mcp_pin) {
+    uint16_t value = 0;
+    ATOMIC_BLOCK_FORCEON {
+        value = MCP_digitalRead(mcp_pin);
+    }
+    return value;
+}
+
+static inline void MCP_setPinInputHigh_atomic(uint8_t mcp_pin) {
+    ATOMIC_BLOCK_FORCEON {
+        MCP_pinMode(mcp_pin, 1);
+        MCP_pullupMode(mcp_pin, 1);
+    }
+}
+
 
 // matrix code
 #ifdef DIRECT_PINS
@@ -81,7 +71,7 @@ static void unselect_rows(void) {
 static void init_pins(void) {
     unselect_rows();
     for (uint8_t x = 0; x < MATRIX_COLS; x++) {
-        setPinInputHigh_atomic(col_pins[x]);
+        MCP_setPinInputHigh_atomic(mcp_col_pins[x]);
     }
 }
 
@@ -96,7 +86,7 @@ static bool read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row)
     // For each col...
     for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++) {
         // Select the col pin to read (active low)
-        uint8_t pin_state = readPin(col_pins[col_index]);
+        uint8_t pin_state = MCP_readPin(mcp_col_pins[col_index]);
 
         // Populate the matrix row with the state of the col pin
         current_row_value |= pin_state ? 0 : (MATRIX_ROW_SHIFTER << col_index);
@@ -127,20 +117,12 @@ static bool read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row)
 
 
 void matrix_init_custom(void) {
-    // TODO: initialize hardware here
+    // MCP_init(0, SPI_SS_PIN);
+    MCP_init(0, F5);
+    MCP_begin();
 
-    // // initialize key pins
-    // init_pins();
-
-    // // initialize matrix state: all keys off
-    // for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
-    //     raw_matrix[i] = 0;
-    //     matrix[i]     = 0;
-    // }
-
-    // debounce_init(MATRIX_ROWS);
-
-    // matrix_init_quantum();
+    // initialize key pins
+    init_pins();
 }
 
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
