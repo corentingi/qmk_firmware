@@ -4,7 +4,6 @@
 */
 
 #include <spi_master.h>
-
 #include "MCP23S17.h"            // Header files for this class
 
 // Defines to keep logical information symbolic go here
@@ -51,13 +50,12 @@
 
 
 // Local variables to store register states
-static uint8_t MCP_address      = 0;
+static uint8_t MCP_address = 0;
 static pin_t MCP_slaveSelectPin = SPI_SS_PIN;
-static uint8_t MCP_modeCache    = 0xFFFF;                // Default I/O mode is all input, 0xFFFF
-static uint8_t MCP_outputCache  = 0x0000;                // Default output state is all off, 0x0000
-static uint8_t MCP_pullupCache  = 0x0000;                // Default pull-up state is all off, 0x0000
-static uint8_t MCP_invertCache  = 0x0000;                // Default input inversion state is not inverted, 0x0000
-
+static unsigned int MCP_modeCache = 0xFFFF;         // Default I/O mode is all input, 0xFFFF
+static unsigned int MCP_pullupCache = 0x0000;       // Default output state is all off, 0x0000
+static unsigned int MCP_invertCache = 0x0000;       // Default pull-up state is all off, 0x0000
+static unsigned int MCP_outputCache = 0x0000;       // Default input inversion state is not inverted, 0x0000
 
 // Init MCP to a specific chip (address)
 void MCP_init(uint8_t address, pin_t ss) {
@@ -102,7 +100,7 @@ void MCP_wordWrite(uint8_t reg, unsigned int word) {  // Accept the start regist
 // MODE SETTING FUNCTIONS - BY PIN AND BY WORD
 
 void MCP_pinMode(uint8_t pin, uint8_t mode) {     // Accept the pin # and I/O mode
-    if (pin < 1 | pin > 16) return;               // If the pin value is not valid (1-16) return, do nothing and return
+    if ((pin < 1) | (pin > 16)) return;               // If the pin value is not valid (1-16) return, do nothing and return
     if (mode == INPUT) {                          // Determine the mode before changing the bit state in the mode cache
         MCP_modeCache |= 1 << (pin - 1);          // Since input = "HIGH", OR in a 1 in the appropriate place
     } else {
@@ -121,7 +119,7 @@ void MCP_pinModeAll(unsigned int mode) {             // Accept the word…
 // WEAK PULL-UP SETTING FUNCTIONS - BY WORD AND BY PIN
 
 void MCP_pullupMode(uint8_t pin, uint8_t mode) {
-    if (pin < 1 | pin > 16) return;
+    if ((pin < 1) | (pin > 16)) return;
     if (mode == ON) {
         MCP_pullupCache |= 1 << (pin - 1);
     } else {
@@ -140,7 +138,7 @@ void MCP_pullupModeAll(unsigned int mode) {
 // INPUT INVERSION SETTING FUNCTIONS - BY WORD AND BY PIN
 
 void MCP_inputInvert(uint8_t pin, uint8_t mode) {
-    if (pin < 1 | pin > 16) return;
+    if ((pin < 1) | (pin > 16)) return;
     if (mode == ON) {
         MCP_invertCache |= 1 << (pin - 1);
     } else {
@@ -158,7 +156,7 @@ void MCP_inputInvertAll(unsigned int mode) {
 // WRITE FUNCTIONS - BY WORD AND BY PIN
 
 void MCP_digitalWrite(uint8_t pin, uint8_t value) {
-    if (pin < 1 | pin > 16) return;
+    if ((pin < 1) | (pin > 16)) return;
     if (value) {
         MCP_outputCache |= 1 << (pin - 1);
     } else {
@@ -196,7 +194,7 @@ unsigned int MCP_digitalReadAll(void) {             // This function will read a
 }
 
 uint8_t MCP_digitalRead(uint8_t pin) {                            // Return a single bit value, supply the necessary bit (1-16)
-    if (pin < 1 | pin > 16) return 0x0;                           // If the pin value is not valid (1-16) return, do nothing and return
+    if ((pin < 1) | (pin > 16)) return 0x0;                           // If the pin value is not valid (1-16) return, do nothing and return
     return MCP_digitalReadAll() & (1 << (pin - 1)) ? HIGH : LOW;  // Call the word reading function, extract HIGH/LOW information from the requested pin
 }
 

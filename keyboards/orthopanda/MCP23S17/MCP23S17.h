@@ -36,12 +36,12 @@
 
 
 // Variables
-extern uint8_t MCP_address;                        // Address of the MCP23S17 in use
-extern pin_t MCP_slaveSelectPin;                   // Slave-select pin
-extern unsigned int MCP_modeCache;                 // Caches the mode (input/output) configuration of I/O pins
-extern unsigned int MCP_pullupCache;               // Caches the internal pull-up configuration of input pins (values persist across mode changes)
-extern unsigned int MCP_invertCache;               // Caches the input pin inversion selection (values persist across mode changes)
-extern unsigned int MCP_outputCache;               // Caches the output pin state of pins
+// extern uint8_t MCP_address;                        // Address of the MCP23S17 in use
+// extern pin_t MCP_slaveSelectPin;                   // Slave-select pin
+// extern unsigned int MCP_modeCache;                 // Caches the mode (input/output) configuration of I/O pins
+// extern unsigned int MCP_pullupCache;               // Caches the internal pull-up configuration of input pins (values persist across mode changes)
+// extern unsigned int MCP_invertCache;               // Caches the input pin inversion selection (values persist across mode changes)
+// extern unsigned int MCP_outputCache;               // Caches the output pin state of pins
 
 // Functions
 void MCP_init(uint8_t address, pin_t ss);            // Constructor to instantiate a discrete IC as an object, address 0-7, chipSelect any valid pin

@@ -1,0 +1,14 @@
+{
+    "keyboard_name": "Ortho-panda rev1",
+    "url": "https://github.com/corentingi",
+    "maintainer": "corentingi",
+    "width": 15,
+    "height": 6,
+    "diode_direction": "COL2ROW",
+    "layouts": {
+        "LAYOUT_ortho_6x15_full": {
+            "key_count": 90,
+            "layout": null
+        }
+    }
+}

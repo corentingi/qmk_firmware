@@ -19,9 +19,9 @@
 
 /* key matrix pins */
 // row0 -> row5
-#define MATRIX_ROW_PINS { C6, D4, F4, D7, E6, B4, B5 }
+#define MATRIX_ROW_PINS { C6, D4, F4, D7, E6, B4 }
 #define MATRIX_COL_PINS {}
-#define UNUSED_PINS
+#define UNUSED_PINS { B5, B6 }
 
 /* MCP23S17 GPIO pins */
 #define    GPA0      (0)
@@ -48,11 +48,8 @@
 #define MCP23_COL_PINS { GPA0, GPA1, GPA2, GPA3, GPA4, GPA5, GPA6, GPB7, GPB6, GPB5, GPB4, GPB3, GPB2, GPB1, GPB0 }
 #define MCP23_ROTARY_ENCODER_BUTTON GPA7
 
-// Change SPI Slave Select pin
-#ifdef SPI_SS_PIN
-#undef SPI_SS_PIN
-#endif
-#define SPI_SS_PIN F5
+// MCP SPI Slave Select pin
+#define MCP_SS_PIN F5
 
 /* COL2ROW or ROW2COL */
 #define DIODE_DIRECTION COL2ROW
@@ -74,5 +71,9 @@
 /* prevent stuck modifiers */
 #define PREVENT_STUCK_MODIFIERS
 
+/* Rotary encoder */
+// https://docs.qmk.fm/#/feature_encoders?id=encoders
+#define ENCODERS_PAD_A { F7 }
+#define ENCODERS_PAD_B { F6 }
 
 #endif

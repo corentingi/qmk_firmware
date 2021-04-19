@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <spi_master.h>
 #include "util.h"
 #include "matrix.h"
 #include "debounce.h"
@@ -117,8 +118,7 @@ static bool read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row)
 
 
 void matrix_init_custom(void) {
-    // MCP_init(0, SPI_SS_PIN);
-    MCP_init(0, F5);
+    MCP_init(0, MCP_SS_PIN);
     MCP_begin();
 
     // initialize key pins
@@ -131,7 +131,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
 #if defined(DIRECT_PINS) || (DIODE_DIRECTION == COL2ROW)
     // Set row, read cols
     for (uint8_t current_row = 0; current_row < MATRIX_ROWS; current_row++) {
-        changed |= read_cols_on_row(current_matrix, current_row);
+        matrix_has_changed |= read_cols_on_row(current_matrix, current_row);
     }
 #endif
 
