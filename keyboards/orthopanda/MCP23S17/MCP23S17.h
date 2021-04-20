@@ -45,20 +45,19 @@
 
 // Functions
 void MCP_init(uint8_t address, pin_t ss);            // Constructor to instantiate a discrete IC as an object, address 0-7, chipSelect any valid pin
-void MCP_begin(void);                                    // Start the SPI Bus
-void MCP_wordWrite(uint8_t reg, unsigned int word);  // Typically only used internally, but allows the user to write any register pair if needed, so it's public
-void MCP_byteWrite(uint8_t reg, uint8_t value);      // Typically only used internally, but allows the user to write any register if needed, so it's public
-void MCP_pinMode(uint8_t pin, uint8_t mode);         // Sets the mode (input or output) of a single I/O pin
-void MCP_pinModeAll(unsigned int mode);              // Sets the mode (input or output) of all I/O pins at once
-void MCP_pullupMode(uint8_t pin, uint8_t mode);      // Selects internal 100k input pull-up of a single I/O pin
-void MCP_pullupModeAll(unsigned int mode);           // Selects internal 100k input pull-up of all I/O pins at once
-void MCP_inputInvert(uint8_t pin, uint8_t mode);     // Selects input state inversion of a single I/O pin (writing 1 turns on inversion)
-void MCP_inputInvertAll(unsigned int mode);          // Selects input state inversion of all I/O pins at once (writing a 1 turns on inversion)
-void MCP_digitalWrite(uint8_t pin, uint8_t value);   // Sets an individual output pin HIGH or LOW
-void MCP_digitalWriteAll(unsigned int value);        // Sets all output pins at once. If some pins are configured as input, those bits will be ignored on write
+bool MCP_begin(void);                                // Start the SPI Bus
+bool MCP_wordWrite(uint8_t reg, unsigned int word);  // Typically only used internally, but allows the user to write any register pair if needed, so it's public
+bool MCP_byteWrite(uint8_t reg, uint8_t value);      // Typically only used internally, but allows the user to write any register if needed, so it's public
+bool MCP_pinMode(uint8_t pin, uint8_t mode);         // Sets the mode (input or output) of a single I/O pin
+bool MCP_pinModeAll(unsigned int mode);              // Sets the mode (input or output) of all I/O pins at once
+bool MCP_pullupMode(uint8_t pin, uint8_t mode);      // Selects internal 100k input pull-up of a single I/O pin
+bool MCP_pullupModeAll(unsigned int mode);           // Selects internal 100k input pull-up of all I/O pins at once
+bool MCP_inputInvert(uint8_t pin, uint8_t mode);     // Selects input state inversion of a single I/O pin (writing 1 turns on inversion)
+bool MCP_inputInvertAll(unsigned int mode);          // Selects input state inversion of all I/O pins at once (writing a 1 turns on inversion)
+bool MCP_digitalWrite(uint8_t pin, uint8_t value);   // Sets an individual output pin HIGH or LOW
+bool MCP_digitalWriteAll(unsigned int value);        // Sets all output pins at once. If some pins are configured as input, those bits will be ignored on write
 uint8_t MCP_byteRead(uint8_t reg);                   // Reads an individual register and returns the byte. Argument is the register address
 uint8_t MCP_digitalRead(uint8_t pin);                // Reads an individual input pin
 unsigned int MCP_digitalReadAll(void);               // Reads all input  pins at once. Be sure it ignore the value of pins configured as output!
-void MCP_end(void);
 
 #endif // MCP23S17

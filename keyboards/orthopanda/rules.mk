@@ -14,7 +14,7 @@ BOOTLOADER = caterina
 
 # Features
 CUSTOM_MATRIX = lite
-CONSOLE_ENABLE = no
+CONSOLE_ENABLE = yes
 ENCODER_ENABLE = no
 LTO_ENABLE = no
 

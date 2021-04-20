@@ -16,6 +16,9 @@
 #include "debounce.h"
 #include "quantum.h"
 
+// FIXME: DEBUG
+#include "print.h"
+
 // Custom MCP23S17 support
 #include "MCP23S17/MCP23S17.h"
 
@@ -38,18 +41,17 @@ static inline void setPinInputHigh_atomic(pin_t pin) {
 }
 
 static inline uint8_t MCP_readPin(uint8_t mcp_pin) {
-    uint16_t value = 0;
-    ATOMIC_BLOCK_FORCEON {
-        value = MCP_digitalRead(mcp_pin);
-    }
-    return value;
+    // return MCP_digitalRead(mcp_pin + 1);
+    return 1;
 }
 
 static inline void MCP_setPinInputHigh_atomic(uint8_t mcp_pin) {
-    ATOMIC_BLOCK_FORCEON {
-        MCP_pinMode(mcp_pin, 1);
-        MCP_pullupMode(mcp_pin, 1);
-    }
+    bool status;
+    status = MCP_pinMode(mcp_pin + 1, 1);
+    dprintf("[debug] pinMode: %d ", status);
+
+    status = MCP_pullupMode(mcp_pin + 1, 1);
+    dprintf("[debug] pullupMode: %d\n", status);
 }
 
 
@@ -70,10 +72,16 @@ static void unselect_rows(void) {
 }
 
 static void init_pins(void) {
+    // bool status;
     unselect_rows();
     for (uint8_t x = 0; x < MATRIX_COLS; x++) {
         MCP_setPinInputHigh_atomic(mcp_col_pins[x]);
     }
+    // status = MCP_pinModeAll(0xFF);
+    // dprintf("[debug] pinMode: %d ", status);
+
+    // status = MCP_pullupModeAll(0xFF);
+    // dprintf("[debug] pullupMode: %d\n", status);
 }
 
 static bool read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row) {
@@ -118,11 +126,36 @@ static bool read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row)
 
 
 void matrix_init_custom(void) {
+    bool status;
+
+    debug_enable=true;
+    debug_matrix=true;
+    //debug_keyboard=true;
+    //debug_mouse=true;
+
+    wait_ms(1000);
+    print("[debug] step: matrix_init_custom\n");
+
     MCP_init(0, MCP_SS_PIN);
-    MCP_begin();
+
+    print("[debug] MCP_init()\n");
+
+    wait_ms(1000);
+
+    status = MCP_begin();
+
+    dprintf("[debug] MCP_begin(): %d\n", status);
+
+    wait_ms(1000);
 
     // initialize key pins
     init_pins();
+
+    print("[debug] init_pins()\n");
+
+    wait_ms(1000);
+
+
 }
 
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
