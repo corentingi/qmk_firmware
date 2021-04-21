@@ -41,8 +41,7 @@ static inline void setPinInputHigh_atomic(pin_t pin) {
 }
 
 static inline uint8_t MCP_readPin(uint8_t mcp_pin) {
-    // return MCP_digitalRead(mcp_pin + 1);
-    return 1;
+    return MCP_digitalRead(mcp_pin + 1);
 }
 
 static inline void MCP_setPinInputHigh_atomic(uint8_t mcp_pin) {
@@ -93,9 +92,11 @@ static bool read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row)
     matrix_output_select_delay();
 
     // For each col...
+    // uint16_t col_pin_states = MCP_digitalReadAll();
     for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++) {
         // Select the col pin to read (active low)
         uint8_t pin_state = MCP_readPin(mcp_col_pins[col_index]);
+        // uint8_t pin_state = col_pin_states & (1 << (mcp_col_pins[col_index] - 1)) ? 1 : 0;
 
         // Populate the matrix row with the state of the col pin
         current_row_value |= pin_state ? 0 : (MATRIX_ROW_SHIFTER << col_index);
@@ -133,29 +134,19 @@ void matrix_init_custom(void) {
     //debug_keyboard=true;
     //debug_mouse=true;
 
-    wait_ms(1000);
-    print("[debug] step: matrix_init_custom\n");
+    // Wait a bit to allow print to console
+    wait_ms(100);
 
     MCP_init(0, MCP_SS_PIN);
-
-    print("[debug] MCP_init()\n");
-
-    wait_ms(1000);
-
     status = MCP_begin();
-
-    dprintf("[debug] MCP_begin(): %d\n", status);
-
-    wait_ms(1000);
+    if (status) {
+        dprint("Communicating with MCP23S17.\n");
+    } else {
+        dprint("Could not communicate with MCP23S17.\n");
+    }
 
     // initialize key pins
     init_pins();
-
-    print("[debug] init_pins()\n");
-
-    wait_ms(1000);
-
-
 }
 
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {

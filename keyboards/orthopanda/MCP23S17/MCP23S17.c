@@ -6,6 +6,13 @@
 #include <spi_master.h>
 #include "MCP23S17.h"            // Header files for this class
 
+// Hack to allow defining a custom value for the SPI_SS_PIN
+// There is a "bug" that makes spi_init() init the slave pin only in SPI_SS_PIN
+#ifdef SPI_SS_PIN
+#undef SPI_SS_PIN
+#endif
+#define SPI_SS_PIN MCP_SS_PIN
+
 // Defines to keep logical information symbolic go here
 #ifndef HIGH
 #define    HIGH          (1)
