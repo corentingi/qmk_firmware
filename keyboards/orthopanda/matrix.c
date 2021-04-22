@@ -45,12 +45,10 @@ static inline uint8_t MCP_readPin(uint8_t mcp_pin) {
 }
 
 static inline void MCP_setPinInputHigh_atomic(uint8_t mcp_pin) {
-    bool status;
-    status = MCP_pinMode(mcp_pin + 1, 1);
-    dprintf("[debug] pinMode: %d ", status);
-
-    status = MCP_pullupMode(mcp_pin + 1, 1);
-    dprintf("[debug] pullupMode: %d\n", status);
+    ATOMIC_BLOCK_FORCEON {
+        MCP_pinMode(mcp_pin + 1, 1);
+        MCP_pullupMode(mcp_pin + 1, 1);
+    }
 }
 
 
@@ -71,16 +69,10 @@ static void unselect_rows(void) {
 }
 
 static void init_pins(void) {
-    // bool status;
     unselect_rows();
     for (uint8_t x = 0; x < MATRIX_COLS; x++) {
         MCP_setPinInputHigh_atomic(mcp_col_pins[x]);
     }
-    // status = MCP_pinModeAll(0xFF);
-    // dprintf("[debug] pinMode: %d ", status);
-
-    // status = MCP_pullupModeAll(0xFF);
-    // dprintf("[debug] pullupMode: %d\n", status);
 }
 
 static bool read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row) {
@@ -129,21 +121,18 @@ static bool read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row)
 void matrix_init_custom(void) {
     bool status;
 
-    debug_enable=true;
-    debug_matrix=true;
-    //debug_keyboard=true;
-    //debug_mouse=true;
-
-    // Wait a bit to allow print to console
+    // Wait a bit to allow printing to console
     wait_ms(100);
 
     MCP_init(0, MCP_SS_PIN);
     status = MCP_begin();
+#ifdef CONSOLE_ENABLE
     if (status) {
         dprint("Communicating with MCP23S17.\n");
     } else {
         dprint("Could not communicate with MCP23S17.\n");
     }
+#endif
 
     // initialize key pins
     init_pins();
@@ -159,5 +148,6 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     }
 #endif
 
+    wait_us(10);
     return matrix_has_changed;
 }

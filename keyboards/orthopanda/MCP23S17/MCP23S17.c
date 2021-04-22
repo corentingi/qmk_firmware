@@ -40,7 +40,7 @@
 
 // Here we have things for the SPI bus configuration
 
-#define    CLOCK_DIVIDER (128)           // SPI bus speed to be 1/2 of the processor clock speed - 8MHz on most Arduinos
+#define    CLOCK_DIVIDER (2)           // SPI bus speed to be 1/2 of the processor clock speed - 8MHz on most Arduinos
 
 // Control byte and configuration register information - Control Byte: "0100 A2 A1 A0 R/W" -- W=0
 
@@ -73,7 +73,6 @@ void MCP_init(uint8_t address, pin_t ss) {
     MCP_pullupCache = 0x0000;                // Default pull-up state is all off, 0x0000
     MCP_invertCache = 0x0000;                // Default input inversion state is not inverted, 0x0000
     spi_init();
-    dprint("[debug] SPI init done\n"); // DEBUG
 }
 
 
