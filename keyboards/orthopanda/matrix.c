@@ -40,10 +40,6 @@ static inline void setPinInputHigh_atomic(pin_t pin) {
     ATOMIC_BLOCK_FORCEON { setPinInputHigh(pin); }
 }
 
-static inline uint8_t MCP_readPin(uint8_t mcp_pin) {
-    return MCP_digitalRead(mcp_pin + 1);
-}
-
 static inline void MCP_setPinInputHigh_atomic(uint8_t mcp_pin) {
     ATOMIC_BLOCK_FORCEON {
         MCP_pinMode(mcp_pin + 1, 1);
@@ -68,6 +64,10 @@ static void unselect_rows(void) {
     }
 }
 
+static uint16_t read_cols(void) {
+    return MCP_digitalReadAll();
+}
+
 static void init_pins(void) {
     unselect_rows();
     for (uint8_t x = 0; x < MATRIX_COLS; x++) {
@@ -83,12 +83,12 @@ static bool read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row)
     select_row(current_row);
     matrix_output_select_delay();
 
+    // Read all cols at once to improve performances with MCP23S17
+    uint16_t col_pin_states = read_cols();
     // For each col...
-    // uint16_t col_pin_states = MCP_digitalReadAll();
     for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++) {
         // Select the col pin to read (active low)
-        uint8_t pin_state = MCP_readPin(mcp_col_pins[col_index]);
-        // uint8_t pin_state = col_pin_states & (1 << (mcp_col_pins[col_index] - 1)) ? 1 : 0;
+        uint8_t pin_state = col_pin_states & (1 << mcp_col_pins[col_index]) ? 1 : 0;
 
         // Populate the matrix row with the state of the col pin
         current_row_value |= pin_state ? 0 : (MATRIX_ROW_SHIFTER << col_index);
@@ -119,20 +119,12 @@ static bool read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row)
 
 
 void matrix_init_custom(void) {
-    bool status;
+    // Leave some time before init
+    wait_ms(10);
 
-    // Wait a bit to allow printing to console
-    wait_ms(100);
-
+    // Setup SPI communication with MCP23S17
     MCP_init(0, MCP_SS_PIN);
-    status = MCP_begin();
-#ifdef CONSOLE_ENABLE
-    if (status) {
-        dprint("Communicating with MCP23S17.\n");
-    } else {
-        dprint("Could not communicate with MCP23S17.\n");
-    }
-#endif
+    MCP_begin();
 
     // initialize key pins
     init_pins();
@@ -148,6 +140,5 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     }
 #endif
 
-    wait_us(10);
     return matrix_has_changed;
 }

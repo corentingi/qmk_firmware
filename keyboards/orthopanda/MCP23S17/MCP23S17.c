@@ -59,10 +59,10 @@
 // Local variables to store register states
 static uint8_t MCP_address = 0;
 static pin_t MCP_slaveSelectPin = SPI_SS_PIN;
-static unsigned int MCP_modeCache = 0xFFFF;         // Default I/O mode is all input, 0xFFFF
-static unsigned int MCP_pullupCache = 0x0000;       // Default output state is all off, 0x0000
-static unsigned int MCP_invertCache = 0x0000;       // Default pull-up state is all off, 0x0000
-static unsigned int MCP_outputCache = 0x0000;       // Default input inversion state is not inverted, 0x0000
+static uint16_t MCP_modeCache = 0xFFFF;         // Default I/O mode is all input, 0xFFFF
+static uint16_t MCP_pullupCache = 0x0000;       // Default output state is all off, 0x0000
+static uint16_t MCP_invertCache = 0x0000;       // Default pull-up state is all off, 0x0000
+static uint16_t MCP_outputCache = 0x0000;       // Default input inversion state is not inverted, 0x0000
 
 // Init MCP to a specific chip (address)
 void MCP_init(uint8_t address, pin_t ss) {
@@ -99,7 +99,7 @@ bool MCP_byteWrite(uint8_t reg, uint8_t value) {      // Accept the register and
 
 // GENERIC WORD WRITE - will write a word to a register pair, LSB to first register, MSB to next higher value register
 
-bool MCP_wordWrite(uint8_t reg, unsigned int word) {  // Accept the start register and word
+bool MCP_wordWrite(uint8_t reg, uint16_t word) {  // Accept the start register and word
     spi_status_t status = spi_start(MCP_slaveSelectPin, false, 0, CLOCK_DIVIDER);
 
     if (status == SPI_STATUS_TIMEOUT) {
@@ -127,7 +127,7 @@ bool MCP_pinMode(uint8_t pin, uint8_t mode) {     // Accept the pin # and I/O mo
     return MCP_wordWrite(IODIRA, MCP_modeCache);  // Call the generic word writer with start register and the mode cache
 }
 
-bool MCP_pinModeAll(unsigned int mode) {             // Accept the word…
+bool MCP_pinModeAll(uint16_t mode) {             // Accept the word…
     MCP_modeCache = mode;
     return MCP_wordWrite(IODIRA, mode);                  // Call the the generic word writer with start register and the mode cache
 }
@@ -147,7 +147,7 @@ bool MCP_pullupMode(uint8_t pin, uint8_t mode) {
 }
 
 
-bool MCP_pullupModeAll(unsigned int mode) {
+bool MCP_pullupModeAll(uint16_t mode) {
     MCP_pullupCache = mode;
     return MCP_wordWrite(GPPUA, mode);
 }
@@ -165,7 +165,7 @@ bool MCP_inputInvert(uint8_t pin, uint8_t mode) {
     return MCP_wordWrite(IPOLA, MCP_invertCache);
 }
 
-bool MCP_inputInvertAll(unsigned int mode) {
+bool MCP_inputInvertAll(uint16_t mode) {
     MCP_invertCache = mode;
     return MCP_wordWrite(IPOLA, mode);
 }
@@ -183,7 +183,7 @@ bool MCP_digitalWrite(uint8_t pin, uint8_t value) {
     return MCP_wordWrite(GPIOA, MCP_outputCache);
 }
 
-bool MCP_digitalWriteAll(unsigned int value) {
+bool MCP_digitalWriteAll(uint16_t value) {
     MCP_outputCache = value;
     return MCP_wordWrite(GPIOA, value);
 }
@@ -206,8 +206,8 @@ uint8_t MCP_byteRead(uint8_t reg) {              // This function will read a si
     return value;                                // Return the constructed word, the format is 0x(register value)
 }
 
-unsigned int MCP_digitalReadAll(void) {             // This function will read all 16 bits of I/O, and return them as a word in the format 0x(portB)(portA)
-    unsigned int value = 0;                      // Initialize a variable to hold the read values to be returned
+uint16_t MCP_digitalReadAll(void) {             // This function will read all 16 bits of I/O, and return them as a word in the format 0x(portB)(portA)
+    uint16_t value = 0;                      // Initialize a variable to hold the read values to be returned
     spi_status_t status = spi_start(MCP_slaveSelectPin, false, 0, CLOCK_DIVIDER);
 
     if (status == SPI_STATUS_TIMEOUT) {

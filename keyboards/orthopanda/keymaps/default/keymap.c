@@ -1,5 +1,25 @@
 #include QMK_KEYBOARD_H
 
+/*
+    Read documentation for keycodes list
+    https://docs.qmk.fm/#/keycodes?id=basic-keycodes
+*/
+
+
+// Modify keycodes (For use with MacOS)
+#ifdef KC_VOLU
+#undef KC_VOLU
+#endif
+#ifdef KC_VOLD
+#undef KC_VOLD
+#endif
+#ifdef KC_MUTE
+#undef KC_MUTE
+#endif
+#define KC_VOLU KC__VOLUP
+#define KC_VOLD KC__VOLDOWN
+#define KC_MUTE KC__MUTE
+
 enum layer_names {
   _BASE,
   _FN,
