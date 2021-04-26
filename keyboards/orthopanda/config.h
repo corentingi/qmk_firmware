@@ -76,4 +76,11 @@
 #define ENCODERS_PAD_A { F7 }
 #define ENCODERS_PAD_B { F6 }
 
+/* OLED display settings */
+#define OLED_DISPLAY_ADDRESS 0x3C
+#define OLED_BRIGHTNESS 128
+#define OLED_FONT_H "common/glcdfont.c"
+// #define OLED_FONT_WIDTH 8
+// #define OLED_FONT_HEIGHT 16
+
 #endif

@@ -15,8 +15,10 @@ BOOTLOADER = caterina
 # Features
 CUSTOM_MATRIX = lite
 CONSOLE_ENABLE = no
-ENCODER_ENABLE = no
+ENCODER_ENABLE = yes
+MOUSEKEY_ENABLE = yes
 LTO_ENABLE = no
+OLED_DRIVER_ENABLE = yes
 
 # BOOTMAGIC_ENABLE ?= yes	# Virtual DIP switch configuration(+1000)
 # MOUSEKEY_ENABLE ?= yes	# Mouse keys(+4700)
@@ -30,6 +32,6 @@ LTO_ENABLE = no
 # RGBLIGHT_ENABLE ?= no
 
 # Sources
-SRC += matrix.c
-SRC += spi_master.c
-SRC += MCP23S17/MCP23S17.c
+SRC += matrix.c \
+       spi_master.c \
+       MCP23S17/MCP23S17.c
