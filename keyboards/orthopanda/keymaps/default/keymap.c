@@ -23,6 +23,11 @@
 // Use Azerty layout for typing
 #include "sendstring_french.h"
 
+// Custom sendstring macros
+#if __has_include("sendstring_macros.h")
+#  include "sendstring_macros.h"
+#endif
+
 enum layer_names {
   _BASE,
   _MACOS,
@@ -40,6 +45,7 @@ enum custom_keycodes {
     C_M3,
     C_M4,
     C_M5,
+    C_M6,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -73,7 +79,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_FN] = LAYOUT(
         TG(_MOD), TG(_MACOS), TG(_NUM), XXXXXXX, XXXXXXX, KC_INS,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_PSCR,
         XXXXXXX, C_M1,    C_M2,    C_M3,    C_M4,    C_M5,    KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        XXXXXXX, C_M6,    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         KC_NUBS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_SLSH, XXXXXXX, XXXXXXX, XXXXXXX,
         KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, LOGO,    KC_VOLD, XXXXXXX, XXXXXXX, KC_MPRV, KC_HOME, KC_UP,   KC_END,  KC_LSFT, KC_PGUP,
         MO(_FN), KC_LCTL, KC_LALT, KC_LGUI, KC_MPLY, KC_MPLY, KC_MUTE, KC_MSTP, KC_MSTP, KC_MNXT, KC_LEFT, KC_DOWN, KC_RGHT, KC_RGHT, KC_PGDN),
@@ -107,6 +113,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 static bool display_logo = true;
 
+static bool is_mod_pressed(uint16_t keycode) {
+    return keyboard_report->mods & (MOD_BIT(keycode));
+}
+
 // Uptime
 // static uint32_t startup_time;
 void keyboard_post_init_user(void) {
@@ -116,6 +126,10 @@ void keyboard_post_init_user(void) {
 
 // Custom keycodes
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // if (layer_state_is(_MACOS)) {
+    //     // Set MacOS behavior
+    // }
+
     switch (keycode) {
         case LOGO:
             if (record->event.pressed) {
@@ -129,29 +143,45 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
     }
 
+#ifdef MACRO_STRINGS
     switch (keycode) {
         case C_M1:
             if (record->event.pressed) {
-                SEND_STRING("corentin.gitton");
+                SEND_STRING(MACRO_STRING_M1);
             }
             break;
 
         case C_M2:
             if (record->event.pressed) {
-                if (layer_state_is(_MACOS)) {
-                    SEND_STRING("cgitton@alkemics.com");
-                } else {
-                    SEND_STRING("corentin.gitton@gmail.com");
-                }
+                SEND_STRING(MACRO_STRING_M2);
             }
             break;
 
         case C_M3:
             if (record->event.pressed) {
-                SEND_STRING("cgitton@alkemics.com");
+                SEND_STRING(MACRO_STRING_M3);
+            }
+            break;
+
+        case C_M4:
+            if (record->event.pressed) {
+                SEND_STRING(MACRO_STRING_M4);
+            }
+            break;
+
+        case C_M5:
+            if (record->event.pressed) {
+                SEND_STRING(MACRO_STRING_M5);
+            }
+            break;
+
+        case C_M6:
+            if (record->event.pressed) {
+                SEND_STRING(MACRO_STRING_M6);
             }
             break;
     }
+#endif
     return true;
 };
 
@@ -196,10 +226,18 @@ void encoder_update_user(uint8_t index, bool clockwise) {
                 }
                 break;
             default:
-                if (clockwise) {
-                    tap_code(KC_VOLU); /*volume up*/
+                if (layer_state_is(_MACOS) && !is_mod_pressed(KC_LSFT)) {
+                    if (clockwise) {
+                        tap_code16(LSA(KC_VOLU)); /*volume up*/
+                    } else {
+                        tap_code16(LSA(KC_VOLD)); /*volume down*/
+                    }
                 } else {
-                    tap_code(KC_VOLD); /*volume down*/
+                    if (clockwise) {
+                        tap_code(KC_VOLU); /*volume up*/
+                    } else {
+                        tap_code(KC_VOLD); /*volume down*/
+                    }
                 }
                 break;
         }
@@ -270,9 +308,11 @@ static void render_status(void) {
 
     // if (layer_state_is(_MACOS)) {
     //     oled_set_cursor(oled_max_chars() - 3, 0);
-    //     oled_write_P(PSTR("\x94\x95"), false);
+    //     oled_write_P(PSTR("\x94"), false);
+    //     oled_write_P(PSTR("\x95"), false);
     //     oled_set_cursor(oled_max_chars() - 3, 1);
-    //     oled_write_P(PSTR("\xB4\xB5"), false);
+    //     oled_write_P(PSTR("\xB4"), false);
+    //     oled_write_P(PSTR("\xB5"), false);
     // }
 }
 
