@@ -20,6 +20,8 @@
 #define KC_VOLD KC__VOLDOWN
 #define KC_MUTE KC__MUTE
 
+#include <stdio.h>
+
 // Use Azerty layout for typing
 #include "sendstring_french.h"
 
@@ -29,17 +31,19 @@
 #endif
 
 enum layer_names {
-  _BASE,
-  _MACOS,
+  _MAIN,
+  _TEXT,
+  _CODE,
   _MOD,
-  _FN,
   _NUM,
+  _FN,
   _OFF,
 };
 
 enum custom_keycodes {
     LOGO = SAFE_RANGE,
     DF_MAC,
+    SETTINGS,
     C_M1,
     C_M2,
     C_M3,
@@ -50,8 +54,7 @@ enum custom_keycodes {
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
-    // Base
-    [_BASE] = LAYOUT(
+    [_MAIN] = LAYOUT(
         KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_DEL,  KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_PSCR,
         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_BSPC, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_PSCR,
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_BSPC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC, KC_SLSH,
@@ -59,14 +62,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_ENT,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_UP,   KC_BSLS, KC_LSFT, KC_PGUP,
         MO(_FN), KC_LCTL, KC_LGUI, KC_LALT, KC_SPC,  KC_SPC,  KC_SPC,  KC_SPC,  KC_SPC,  KC_RALT, KC_LEFT, KC_DOWN, KC_RGHT, KC_RCTL, KC_PGDN),
 
-    // MacOS (Work)
-    [_MACOS] = LAYOUT(
+    [_TEXT] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+        KC_NUBS, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_SLSH, _______, _______, _______,
+        MO(_FN), _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______),
+
+    [_CODE] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, KC_LALT, KC_LGUI, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______),
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+        KC_NUBS, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_SLSH, _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+        MO(_FN), _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______),
 
     [_MOD] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
@@ -76,21 +86,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_HOME, KC_SLSH, KC_END,  KC_LSFT, KC_PGUP,
         MO(_FN), _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_LEFT, KC_DOWN, KC_RGHT, KC_RGHT, KC_PGDN),
 
-    [_FN] = LAYOUT(
-        TG(_MOD), TG(_MACOS), TG(_NUM), XXXXXXX, XXXXXXX, KC_INS,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_PSCR,
-        XXXXXXX, C_M1,    C_M2,    C_M3,    C_M4,    C_M5,    KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX, C_M6,    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        KC_NUBS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_SLSH, XXXXXXX, XXXXXXX, XXXXXXX,
-        KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, LOGO,    KC_VOLD, XXXXXXX, XXXXXXX, KC_MPRV, KC_HOME, KC_UP,   KC_END,  KC_LSFT, KC_PGUP,
-        MO(_FN), KC_LCTL, KC_LALT, KC_LGUI, KC_MPLY, KC_MPLY, KC_MUTE, KC_MSTP, KC_MSTP, KC_MNXT, KC_LEFT, KC_DOWN, KC_RGHT, KC_RGHT, KC_PGDN),
-
     [_NUM] = LAYOUT(
-        TG(_NUM), XXXXXXX, TG(_NUM), XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, TG(_NUM),
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_TAB,  KC_PSLS, KC_PAST, KC_PMNS,
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_P7,   KC_P8,   KC_P9,   KC_PPLS,
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_P4,   KC_P5,   KC_P6,   KC_PCMM,
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_P1,   KC_P2,   KC_P3,   KC_PEQL,
         MO(_FN), XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_P0,   KC_P0,   KC_PDOT, KC_PENT),
+
+    [_FN] = LAYOUT(
+        TG(_MOD),TG(_NUM), TG(_TEXT), TG(_CODE), XXXXXXX, DF_MAC, KC_INS,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, SETTINGS, KC_PSCR,
+        XXXXXXX, C_M1,    C_M2,    C_M3,    C_M4,    C_M5,    KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        XXXXXXX, C_M6,    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        KC_NUBS, KC_NUBS, S(KC_NUBS), XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_SLSH, XXXXXXX, XXXXXXX, XXXXXXX,
+        KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, LOGO,    KC_VOLD, XXXXXXX, XXXXXXX, KC_MPRV, KC_HOME, KC_UP,   KC_END,  KC_LSFT, KC_PGUP,
+        MO(_FN), KC_LCTL, KC_LALT, KC_LGUI, KC_MPLY, KC_MPLY, KC_MUTE, KC_MSTP, KC_MSTP, KC_MNXT, KC_LEFT, KC_DOWN, KC_RGHT, KC_RGHT, KC_PGDN),
 
     [_OFF] = LAYOUT(
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
@@ -101,7 +111,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         MO(_FN), XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX),
 
     // EXAMPLE
-    // [_BASE] = LAYOUT(
+    // [_MAIN] = LAYOUT(
     //     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
     //     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
     //     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
@@ -111,7 +121,48 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 
+// const char *const layer_labels[] PROGMEM = {
+//     [_MAIN] = "Base",
+//     [_MOD] = "Mod",
+//     [_FN] = "FN",
+//     [_NUM] = "Num",
+//     [_OFF] = "Off",
+// };
+
 static bool display_logo = true;
+static bool settings_mode = false;
+enum settings_list {
+    SETTINGS_OS,
+    SETTINGS_OLED_BRIGHTNESS,
+    SETTINGS_SAVE,
+    SETTINGS_COUNT
+};
+
+
+// Persistent config
+typedef union {
+  uint32_t raw;
+  struct {
+    bool     macos_mode :1;
+  };
+} user_config_t;
+static user_config_t user_config;
+
+// Settings menu
+static uint8_t settings_cursor = 0;
+
+// Handle user EEPROM default value on reset
+void eeconfig_init_user(void) {
+  user_config.raw = 0;
+  user_config.macos_mode = true; // MacOS mode enabled by default
+  eeconfig_update_user(user_config.raw); // Write default value to EEPROM now
+}
+
+static void toggle_macos_mode(void) {
+    user_config.macos_mode ^= 1; // Toggles the status
+    // eeconfig_update_user(user_config.raw); // Writes the new status to EEPROM
+    keymap_config.swap_lalt_lgui = user_config.macos_mode;
+}
 
 static bool is_mod_pressed(uint16_t keycode) {
     return keyboard_report->mods & (MOD_BIT(keycode));
@@ -121,21 +172,84 @@ static bool is_mod_pressed(uint16_t keycode) {
 // static uint32_t startup_time;
 void keyboard_post_init_user(void) {
     // startup_time = timer_read32();
-    layer_on(_MACOS);
+
+    // Read the user config from EEPROM
+    user_config.raw = eeconfig_read_user();
+    keymap_config.swap_lalt_lgui = user_config.macos_mode;
 }
 
 // Custom keycodes
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // if (layer_state_is(_MACOS)) {
-    //     // Set MacOS behavior
-    // }
+void process_settings(uint16_t keycode) {
+    uint8_t temp_setting = 0;
+    switch (keycode) {
+        case KC_ESC:
+        case KC_ENTER:
+            if (settings_cursor == SETTINGS_SAVE) {
+                eeconfig_update_user(user_config.raw);
+            }
+            settings_mode = false;
+            break;
 
+        case KC_UP:
+            if (settings_cursor > 0) {
+                settings_cursor--;
+            }
+            break;
+
+        case KC_DOWN:
+            if (settings_cursor < SETTINGS_COUNT - 1) {
+                settings_cursor++;
+            }
+            break;
+
+        case KC_RGHT:
+            switch (settings_cursor) {
+                case SETTINGS_OS:
+                    toggle_macos_mode();
+                    break;
+                case SETTINGS_OLED_BRIGHTNESS:
+#ifdef OLED_DRIVER_ENABLE
+                    temp_setting = oled_get_brightness();
+                    if (temp_setting < 239) {
+                        temp_setting += 16;
+                    } else {
+                        temp_setting = 255;
+                    }
+                    oled_set_brightness(temp_setting);
+#endif
+                    break;
+            }
+            break;
+
+        case KC_LEFT:
+            switch (settings_cursor) {
+                case SETTINGS_OS:
+                    toggle_macos_mode();
+                    break;
+                case SETTINGS_OLED_BRIGHTNESS:
+#ifdef OLED_DRIVER_ENABLE
+                    temp_setting = oled_get_brightness();
+                    if (temp_setting > 15) {
+                        temp_setting -= 16;
+                    } else {
+                        temp_setting = 0;
+                    }
+                    oled_set_brightness(temp_setting);
+#endif
+                    break;
+            }
+            break;
+    }
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Display logo or hide when any other key is pressed
     switch (keycode) {
         case LOGO:
             if (record->event.pressed) {
                 display_logo = true;
             }
-            return true;
+            return false;
 
         default:
             if (record->event.pressed) {
@@ -143,7 +257,32 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
     }
 
+    // Keyboard state keycodes
+    switch (keycode) {
+        case DF_MAC:
+            if (record->event.pressed) {
+                toggle_macos_mode();
+            }
+            return false;
+
+        case SETTINGS:
+            if (record->event.pressed) {
+                settings_mode ^= 1;
+                if (settings_mode) {
+                    settings_cursor = 0;
+                }
+            }
+            return false;
+    }
+
+    // Handle settings mode
+    if (settings_mode && record->event.pressed) {
+        process_settings(keycode);
+        return false;
+    }
+
 #ifdef MACRO_STRINGS
+    // Macros to type pre-defined strings
     switch (keycode) {
         case C_M1:
             if (record->event.pressed) {
@@ -192,6 +331,16 @@ void encoder_update_user(uint8_t index, bool clockwise) {
     uint8_t oled_brightness = oled_get_brightness();
 #endif
     if (index == 0) { /* First encoder */
+        // Settings mode
+        if (settings_mode) {
+            if (clockwise) {
+                process_settings(KC_RIGHT);
+            } else {
+                process_settings(KC_LEFT);
+            }
+            return;
+        }
+
         switch(biton32(layer_state)){
             case _FN:
 #ifdef OLED_DRIVER_ENABLE
@@ -218,6 +367,13 @@ void encoder_update_user(uint8_t index, bool clockwise) {
                 }
                 break;
 #endif
+            case _CODE:
+                if (clockwise){
+                    tap_code16(LCTL(LSFT(KC_6)));
+                } else{
+                    tap_code16(LCTL(KC_6));
+                }
+                break;
             case _MOD:
                 if (clockwise){
                     tap_code(KC_MS_WH_UP);
@@ -226,7 +382,7 @@ void encoder_update_user(uint8_t index, bool clockwise) {
                 }
                 break;
             default:
-                if (layer_state_is(_MACOS) && !is_mod_pressed(KC_LSFT)) {
+                if (user_config.macos_mode && !is_mod_pressed(KC_LSFT)) {
                     if (clockwise) {
                         tap_code16(LSA(KC_VOLU)); /*volume up*/
                     } else {
@@ -255,75 +411,137 @@ static void render_logo(void) {
     oled_write_P(qmk_logo, false);
 }
 
-static void render_status(void) {
-    // Host Keyboard Layer Status
-    oled_write_P(PSTR("> "), false);
-
-    switch (get_highest_layer(layer_state)) {
-        case _BASE:
-            oled_write_P(PSTR("Base\n"), false);
+static void render_layer_label(uint8_t layer) {
+    switch (layer) {
+        case _MAIN:
+            oled_write_P(PSTR("Main"), false);
             break;
-        case _MACOS:
-            oled_write_P(PSTR("Mac\n"), false);
+        case _TEXT:
+            oled_write_P(PSTR("Text"), false);
+            break;
+        case _CODE:
+            oled_write_P(PSTR("Code"), false);
             break;
         case _MOD:
-            oled_write_P(PSTR("Mod\n"), false);
-            break;
-        case _FN:
-            oled_write_P(PSTR("FN\n"), false);
+            oled_write_P(PSTR("Mod"), false);
             break;
         case _NUM:
-            oled_write_P(PSTR("Num\n"), false);
+            oled_write_P(PSTR("Num"), false);
+            break;
+        case _FN:
+            oled_write_P(PSTR("FN"), false);
             break;
         case _OFF:
-            oled_write_P(PSTR("Off\n"), false);
+            oled_write_P(PSTR("Off"), false);
             break;
         default:
             // Or use the write_ln shortcut over adding '\n' to the end of your string
-            oled_write_ln_P(PSTR("Undef"), false);
+            oled_write_P(PSTR("Undef"), false);
     }
+}
 
-    // Empty line
-    oled_write_ln_P(PSTR(""), false);
-    oled_write_ln_P(PSTR(""), false);
+static void render_layer_state(void) {
+    // Host Keyboard Layer Status
+    bool first = true;
+    uint8_t i;
+    const uint8_t highest_layer = get_highest_layer(layer_state);
+    for (i = 0; i <= highest_layer; ++i)
+    {
+        if (layer_state_is(i)) {
+            if (first) {
+                first = false;
+            } else {
+                oled_write_P(PSTR(" > "), false);
+            }
+            // oled_write_P(layer_labels[i], false);
+            render_layer_label(i);
+        }
+    }
+    oled_advance_page(true);
+}
 
-    // Host Keyboard LED Status
+void render_status_bar(void) {
+    uint8_t modifiers = get_mods();
     led_t led_state = host_keyboard_led_state();
-    if (led_state.num_lock) {
-        oled_write_P(PSTR("NUM "), false);
+    oled_write_P(PSTR("\325\326"), (modifiers & MOD_MASK_SHIFT));
+    oled_write_P(PSTR("\327\330"), (modifiers & MOD_MASK_CTRL));
+    if (user_config.macos_mode) {
+        oled_write_P(PSTR("\331\332"), (modifiers & MOD_MASK_ALT));
+        oled_write_P(PSTR("\333\334"), (modifiers & MOD_MASK_GUI));
+    } else {
+        oled_write_P(PSTR("\335\336"), (modifiers & MOD_MASK_GUI));
+        oled_write_P(PSTR("\331\332"), (modifiers & MOD_MASK_ALT));
     }
-    if (led_state.caps_lock) {
-        if (led_state.num_lock) {
-            oled_write_P(PSTR(" | "), false);
-        }
-        oled_write_P(PSTR("CAP "), false);
-    }
-    if (led_state.scroll_lock) {
-        if (led_state.num_lock || led_state.caps_lock) {
-            oled_write_P(PSTR(" | "), false);
-        }
-        oled_write_P(PSTR("SCR "), false);
-    }
-    oled_write_ln_P(PSTR(""), false);
+    oled_write_P(PSTR("         "), false);
+    oled_write_P(PSTR("\235\236"), led_state.caps_lock);
+    oled_write_P(PSTR("\275\276"), led_state.num_lock);
+}
 
-    // if (layer_state_is(_MACOS)) {
-    //     oled_set_cursor(oled_max_chars() - 3, 0);
-    //     oled_write_P(PSTR("\x94"), false);
-    //     oled_write_P(PSTR("\x95"), false);
-    //     oled_set_cursor(oled_max_chars() - 3, 1);
-    //     oled_write_P(PSTR("\xB4"), false);
-    //     oled_write_P(PSTR("\xB5"), false);
-    // }
+void render_settings(void) {
+    char temp_str[21];
+    uint8_t i;
+    uint8_t scroll = 0;
+    while (settings_cursor - scroll < 0 && scroll > 0) scroll--;
+    while (settings_cursor - scroll > 4) scroll++;
+
+    for (i = 0; i < 4; ++i)
+    {
+        if (i - scroll == settings_cursor) {
+            oled_write_P(PSTR("> "), false);
+        } else {
+            oled_write_P(PSTR("  "), false);
+        }
+        switch (i - scroll) {
+            case SETTINGS_OS:
+                oled_write_P(PSTR("OS mode"), false);
+                if (i - scroll == settings_cursor) {
+                    oled_write_P(PSTR(": "), false);
+                    if (user_config.macos_mode) {
+                        oled_write_P(PSTR("MacOS"), false);
+                    } else {
+                        oled_write_P(PSTR("Normal"), false);
+                    }
+                }
+                break;
+            case SETTINGS_OLED_BRIGHTNESS:
+                oled_write_P(PSTR("Brightness"), false);
+                if (i - scroll == settings_cursor) {
+                    oled_write_P(PSTR(": "), false);
+                    sprintf(temp_str, "%d", oled_get_brightness() / 16 + 1);
+                    oled_write(temp_str, false);
+                }
+                break;
+            case SETTINGS_SAVE:
+                oled_write_P(PSTR("Save to EEPROM"), false);
+                break;
+        }
+        oled_advance_page(true);
+    }
+}
+
+void oled_horizontal_bar(void) {
+    uint8_t i = 0;
+    while (i++ < oled_max_chars()) {
+        oled_write_P(PSTR("\237"), false);
+    }
 }
 
 void oled_task_user(void) {
-    if (display_logo) {
+    if (settings_mode) {
+        render_settings();
+        return;
+    } else if (display_logo) {
         render_logo();
         // oled_write_P(PSTR("\n"), false);
         // oled_scroll_left();
         return;
     } else {
-        render_status();
+        render_status_bar();
+        oled_horizontal_bar();
+        oled_advance_page(true);
+        render_layer_state();
+        // render_os_mode();
+        return;
     }
 }
 #endif
