@@ -73,6 +73,9 @@ static void init_pins(void) {
     for (uint8_t x = 0; x < MATRIX_COLS; x++) {
         MCP_setPinInputHigh_atomic(mcp_col_pins[x]);
     }
+
+    // Init encoder button pin
+    MCP_setPinInputHigh_atomic(MCP23_ROTARY_ENCODER_BUTTON);
 }
 
 static bool read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row) {

@@ -30,6 +30,9 @@
 #  include "sendstring_macros.h"
 #endif
 
+// Include MCP functions
+#include "MCP23S17/MCP23S17.h"
+
 enum layer_names {
   _MAIN,
   _TEXT,
@@ -50,6 +53,7 @@ enum custom_keycodes {
     C_M4,
     C_M5,
     C_M6,
+    C_M7,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -97,7 +101,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_FN] = LAYOUT(
         TG(_MOD),TG(_NUM), TG(_TEXT), TG(_CODE), XXXXXXX, DF_MAC, KC_INS,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, SETTINGS, KC_PSCR,
         XXXXXXX, C_M1,    C_M2,    C_M3,    C_M4,    C_M5,    KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX, C_M6,    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        XXXXXXX, C_M6,    C_M7,    XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         KC_NUBS, KC_NUBS, S(KC_NUBS), XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_SLSH, XXXXXXX, XXXXXXX, XXXXXXX,
         KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, LOGO,    KC_VOLD, XXXXXXX, XXXXXXX, KC_MPRV, KC_HOME, KC_UP,   KC_END,  KC_LSFT, KC_PGUP,
         MO(_FN), KC_LCTL, KC_LALT, KC_LGUI, KC_MPLY, KC_MPLY, KC_MUTE, KC_MSTP, KC_MSTP, KC_MNXT, KC_LEFT, KC_DOWN, KC_RGHT, KC_RGHT, KC_PGDN),
@@ -164,9 +168,9 @@ static void toggle_macos_mode(void) {
     keymap_config.swap_lalt_lgui = user_config.macos_mode;
 }
 
-static bool is_mod_pressed(uint16_t keycode) {
-    return keyboard_report->mods & (MOD_BIT(keycode));
-}
+// static bool is_mod_pressed(uint16_t keycode) {
+//     return keyboard_report->mods & (MOD_BIT(keycode));
+// }
 
 // Uptime
 // static uint32_t startup_time;
@@ -319,6 +323,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING(MACRO_STRING_M6);
             }
             break;
+
+        case C_M7:
+            if (record->event.pressed) {
+                SEND_STRING(MACRO_STRING_M7);
+            }
+            break;
     }
 #endif
     return true;
@@ -327,10 +337,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 // Rotary encoder
 void encoder_update_user(uint8_t index, bool clockwise) {
+    bool button_pressed = false;
 #ifdef OLED_DRIVER_ENABLE
     uint8_t oled_brightness = oled_get_brightness();
 #endif
     if (index == 0) { /* First encoder */
+        button_pressed = !MCP_digitalRead(MCP23_ROTARY_ENCODER_BUTTON + 1);
+
         // Settings mode
         if (settings_mode) {
             if (clockwise) {
@@ -368,10 +381,18 @@ void encoder_update_user(uint8_t index, bool clockwise) {
                 break;
 #endif
             case _CODE:
-                if (clockwise){
-                    tap_code16(LCTL(LSFT(KC_6)));
-                } else{
-                    tap_code16(LCTL(KC_6));
+                if (button_pressed) {
+                    if (clockwise) {
+                        tap_code(KC_VOLU); /*volume up*/
+                    } else {
+                        tap_code(KC_VOLD); /*volume down*/
+                    }
+                } else {
+                    if (clockwise){
+                        tap_code16(LCTL(LSFT(KC_6)));
+                    } else{
+                        tap_code16(LCTL(KC_6));
+                    }
                 }
                 break;
             case _MOD:
@@ -382,7 +403,7 @@ void encoder_update_user(uint8_t index, bool clockwise) {
                 }
                 break;
             default:
-                if (user_config.macos_mode && !is_mod_pressed(KC_LSFT)) {
+                if (user_config.macos_mode && !button_pressed) {
                     if (clockwise) {
                         tap_code16(LSA(KC_VOLU)); /*volume up*/
                     } else {
@@ -529,19 +550,15 @@ void oled_horizontal_bar(void) {
 void oled_task_user(void) {
     if (settings_mode) {
         render_settings();
-        return;
     } else if (display_logo) {
         render_logo();
-        // oled_write_P(PSTR("\n"), false);
-        // oled_scroll_left();
-        return;
+        oled_advance_page(true);
     } else {
         render_status_bar();
         oled_horizontal_bar();
         oled_advance_page(true);
         render_layer_state();
         // render_os_mode();
-        return;
     }
 }
 #endif
