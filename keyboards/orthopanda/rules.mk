@@ -14,11 +14,14 @@ BOOTLOADER = caterina
 
 # Features
 CUSTOM_MATRIX = lite
-CONSOLE_ENABLE = no
 ENCODER_ENABLE = yes
-MOUSEKEY_ENABLE = yes
-LTO_ENABLE = no
+EXTRAKEY_ENABLE = yes
 OLED_DRIVER_ENABLE = yes
+LTO_ENABLE = yes
+
+MOUSEKEY_ENABLE = no
+CONSOLE_ENABLE = no
+COMMAND_ENABLE = no
 
 # BOOTMAGIC_ENABLE ?= yes	# Virtual DIP switch configuration(+1000)
 # MOUSEKEY_ENABLE ?= yes	# Mouse keys(+4700)

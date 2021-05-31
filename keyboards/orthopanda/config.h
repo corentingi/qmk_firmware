@@ -80,9 +80,10 @@
 /* OLED display settings */
 #define OLED_DISPLAY_ADDRESS 0x3C
 #define OLED_TIMEOUT 5000
-#define OLED_BRIGHTNESS 64
+#define OLED_BRIGHTNESS 0
 #define OLED_FONT_H "common/glcdfont.c"
 #define OLED_FONT_WIDTH 6
 #define OLED_FONT_HEIGHT 8
+#define OLED_UPDATE_INTERVAL 100
 
 #endif
