@@ -23,6 +23,9 @@ MOUSEKEY_ENABLE = no
 CONSOLE_ENABLE = no
 COMMAND_ENABLE = no
 
+# Per key debouncing
+DEBOUNCE_TYPE = sym_defer_pk
+
 # BOOTMAGIC_ENABLE ?= yes	# Virtual DIP switch configuration(+1000)
 # MOUSEKEY_ENABLE ?= yes	# Mouse keys(+4700)
 # EXTRAKEY_ENABLE ?= yes	# Audio control and System control(+450)
