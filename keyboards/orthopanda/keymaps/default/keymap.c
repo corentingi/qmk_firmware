@@ -54,12 +54,13 @@ enum custom_keycodes {
     C_M6,
     C_M7,
     C_M8,
+    C_DISPLAY_TIMER,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_MAIN] = LAYOUT(
-        KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_DEL,  KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_PSCR,
+        KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_DEL,  KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  C_DISPLAY_TIMER,
         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_BSPC, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_PSCR,
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_BSPC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC, KC_SLSH,
         KC_LSFT, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_ENT,  KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, KC_LSFT, KC_CAPS,
@@ -136,6 +137,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // Logo display
 static bool display_logo = true;
+static bool display_timer_pressed = false;
 
 // System timer
 uint32_t time_reference = 0;
@@ -156,6 +158,7 @@ typedef union {
   struct {
     bool     macos_mode :1;
     uint8_t  oled_brightness :3;
+    bool     display_clock :1;
   };
 } user_config_t;
 static user_config_t user_config;
@@ -167,6 +170,7 @@ void eeconfig_init_user(void) {
   user_config.raw = 0;
   user_config.macos_mode = true; // MacOS mode enabled by default
   user_config.oled_brightness = 3; // Default oled brightness
+  user_config.display_clock = true; // Display timer
 
   eeconfig_update_user(user_config.raw); // Write default value to EEPROM now
 }
@@ -204,7 +208,8 @@ static bool settings_mode = false;
 enum settings_list {
     SETTINGS_OS,
     SETTINGS_OLED_BRIGHTNESS,
-    SETTINGS_CURRENT_TIME,
+    SETTINGS_DISPLAY_CLOCK,
+    SETTINGS_RESET_TIMER,
     SETTINGS_SAVE,
     SETTINGS_COUNT
 };
@@ -241,7 +246,14 @@ void process_settings(uint16_t keycode) {
             break;
 
         case KC_ENTER:
-            settings_exit(settings_cursor == SETTINGS_SAVE);
+            switch (settings_cursor) {
+                case SETTINGS_SAVE:
+                    settings_exit(true);
+                    break;
+                case SETTINGS_RESET_TIMER:
+                    time_reference = timer_read32();
+                    break;
+            }
             break;
 
         case KC_UP:
@@ -269,8 +281,8 @@ void process_settings(uint16_t keycode) {
                     oled_set_brightness(user_config.oled_brightness * 36);
 #endif
                     break;
-                case SETTINGS_CURRENT_TIME:
-                    time_reference = timer_read32();
+                case SETTINGS_DISPLAY_CLOCK:
+                    user_config.display_clock ^= 1;
                     break;
             }
             break;
@@ -288,10 +300,14 @@ void process_settings(uint16_t keycode) {
                     oled_set_brightness(user_config.oled_brightness * 36);
 #endif
                     break;
-                case SETTINGS_CURRENT_TIME:
-                    time_reference = timer_read32();
+                case SETTINGS_DISPLAY_CLOCK:
+                    user_config.display_clock ^= 1;
                     break;
             }
+            break;
+
+        default:
+            settings_exit(false);
             break;
     }
 }
@@ -303,6 +319,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 display_logo = true;
             }
+            return false;
+
+        case C_DISPLAY_TIMER:
+            display_timer_pressed = record->event.pressed;
             return false;
 
         default:
@@ -547,20 +567,20 @@ void render_settings(void) {
     uint8_t i;
     uint8_t scroll = 0;
     char* time = current_time();
-    while (settings_cursor - scroll < 0 && scroll > 0) scroll--;
-    while (settings_cursor - scroll > 4) scroll++;
+    while (settings_cursor - scroll > 2) scroll++;
+    while (settings_cursor - scroll < 1 && scroll > 0) scroll--;
 
     for (i = 0; i < 4; ++i)
     {
-        if (i - scroll == settings_cursor) {
+        if (i + scroll == settings_cursor) {
             oled_write_P(PSTR("> "), false);
         } else {
             oled_write_P(PSTR("  "), false);
         }
-        switch (i - scroll) {
+        switch (i + scroll) {
             case SETTINGS_OS:
                 oled_write_P(PSTR("OS mode"), false);
-                if (i - scroll == settings_cursor) {
+                if (i + scroll == settings_cursor) {
                     oled_write_P(PSTR(": "), false);
                     if (user_config.macos_mode) {
                         oled_write_P(PSTR("MacOS"), false);
@@ -571,15 +591,26 @@ void render_settings(void) {
                 break;
             case SETTINGS_OLED_BRIGHTNESS:
                 oled_write_P(PSTR("Brightness"), false);
-                if (i - scroll == settings_cursor) {
+                if (i + scroll == settings_cursor) {
                     oled_write_P(PSTR(": "), false);
                     sprintf(temp_str, "%d", user_config.oled_brightness + 1);
                     oled_write(temp_str, false);
                 }
                 break;
-            case SETTINGS_CURRENT_TIME:
+            case SETTINGS_DISPLAY_CLOCK:
+                oled_write_P(PSTR("Display clock"), false);
+                if (i + scroll == settings_cursor) {
+                    oled_write_P(PSTR(": "), false);
+                    if (user_config.display_clock) {
+                        oled_write_P(PSTR("Yes"), false);
+                    } else {
+                        oled_write_P(PSTR("No"), false);
+                    }
+                }
+                break;
+            case SETTINGS_RESET_TIMER:
                 oled_write_P(PSTR("Time: "), false);
-                if (i - scroll == settings_cursor) {
+                if (i + scroll == settings_cursor) {
                     oled_write_P(PSTR("Reset"), false);
                 } else {
                     oled_write(time, false);
@@ -617,7 +648,11 @@ void oled_task_user(void) {
     } else {
         render_status_bar();
         oled_horizontal_bar();
-        render_time();
+        if (display_timer_pressed || user_config.display_clock) {
+            render_time();
+        } else {
+            oled_advance_page(true);
+        }
         render_layer_state();
         // render_os_mode();
     }
