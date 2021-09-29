@@ -20,7 +20,7 @@
 /* key matrix pins */
 // row0 -> row5
 #define MATRIX_ROW_PINS { C6, D4, F4, D7, E6, B4 }
-#define MATRIX_COL_PINS {}
+#define MATRIX_COL_PINS { G0, G1, G2, G3, G4, G5, G6, G7, H0, H1, H2, H3, H4, H5, H6 }  // Not used
 #define UNUSED_PINS { B5, B6 }
 
 /* MCP23S17 GPIO pins */

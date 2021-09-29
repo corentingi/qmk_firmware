@@ -100,12 +100,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         MO(_FN), XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_P0,   KC_P0,   KC_PDOT, KC_PENT),
 
     [_FN] = LAYOUT(
-        TG(_MOD),TG(_NUM), TG(_TEXT), TG(_CODE), XXXXXXX, XXXXXXX, KC_INS,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, SETTINGS, KC_PSCR,
-        XXXXXXX, C_M1,    C_M2,    C_M3,    C_M4,    C_M5,    KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX, C_M6,    C_M7,    C_M8, XXXXXXX, XXXXXXX, KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        KC_NUBS, KC_NUBS, S(KC_NUBS), XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_SLSH, XXXXXXX, XXXXXXX, XXXXXXX,
-        KC_LSFT, LCTL(KC_UP), LCA(KC_LEFT), LCA(KC_RGHT), XXXXXXX, LOGO,    KC_VOLD, XXXXXXX, XXXXXXX, KC_MPRV, KC_HOME, KC_UP,   KC_END,  KC_LSFT, KC_PGUP,
-        MO(_FN), KC_LCTL, KC_LALT, KC_LGUI, KC_MPLY, KC_MPLY, KC_MUTE, KC_MSTP, KC_MSTP, KC_MNXT, KC_LEFT, KC_DOWN, KC_RGHT, KC_RCTL, KC_PGDN),
+        TG(_MOD),TG(_NUM),    TG(_TEXT),    TG(_CODE),    XXXXXXX, XXXXXXX, KC_INS,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, SETTINGS, KC_PSCR,
+        XXXXXXX, C_M1,        C_M2,         C_M3,         C_M4,    C_M5,    KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,  XXXXXXX,
+        XXXXXXX, C_M6,        C_M7,         C_M8,         XXXXXXX, XXXXXXX, KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,  XXXXXXX,
+        KC_NUBS, KC_NUBS,     S(KC_NUBS),   XXXXXXX,      XXXXXXX, XXXXXXX, KC_VOLD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_SLSH, XXXXXXX, XXXXXXX,  XXXXXXX,
+        KC_LSFT, LCTL(KC_UP), LCA(KC_LEFT), LCA(KC_RGHT), XXXXXXX, LOGO,    KC_VOLD, XXXXXXX, XXXXXXX, KC_MPRV, KC_HOME, KC_UP,   KC_END,  KC_LSFT,  KC_PGUP,
+        MO(_FN), KC_LCTL,     KC_LALT,      KC_APP,       KC_MPLY, KC_MPLY, KC_MUTE, KC_MSTP, KC_MSTP, KC_MNXT, KC_LEFT, KC_DOWN, KC_RGHT, KC_RCTL,  KC_PGDN),
 
     [_OFF] = LAYOUT(
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
@@ -195,7 +195,9 @@ void keyboard_post_init_user(void) {
     // Read the user config from EEPROM
     user_config.raw = eeconfig_read_user();
     keymap_config.swap_lalt_lgui = user_config.macos_mode;
+#ifdef OLED_ENABLE
     oled_set_brightness(user_config.oled_brightness * 36);
+#endif
 
     // Set time
     time_reference = timer_read32();
@@ -274,7 +276,7 @@ void process_settings(uint16_t keycode) {
                     toggle_macos_mode();
                     break;
                 case SETTINGS_OLED_BRIGHTNESS:
-#ifdef OLED_DRIVER_ENABLE
+#ifdef OLED_ENABLE
                     if (user_config.oled_brightness < 7) {
                         user_config.oled_brightness += 1;
                     }
@@ -293,7 +295,7 @@ void process_settings(uint16_t keycode) {
                     toggle_macos_mode();
                     break;
                 case SETTINGS_OLED_BRIGHTNESS:
-#ifdef OLED_DRIVER_ENABLE
+#ifdef OLED_ENABLE
                     if (user_config.oled_brightness > 0) {
                         user_config.oled_brightness -= 1;
                     }
@@ -407,7 +409,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 
 // Rotary encoder
-void encoder_update_user(uint8_t index, bool clockwise) {
+bool encoder_update_user(uint8_t index, bool clockwise) {
     bool button_pressed = false;
     if (index == 0) { /* First encoder */
         button_pressed = !MCP_digitalRead(MCP23_ROTARY_ENCODER_BUTTON + 1);
@@ -419,12 +421,12 @@ void encoder_update_user(uint8_t index, bool clockwise) {
             } else {
                 process_settings(KC_LEFT);
             }
-            return;
+            return false;
         }
 
         switch(biton32(layer_state)){
             case _FN:
-#ifdef OLED_DRIVER_ENABLE
+#ifdef OLED_ENABLE
                 if (clockwise){
                     if (user_config.oled_brightness < 7) {
                         user_config.oled_brightness += 1;
@@ -483,9 +485,10 @@ void encoder_update_user(uint8_t index, bool clockwise) {
                 break;
         }
     }
+    return false;
 }
 
-#ifdef OLED_DRIVER_ENABLE
+#ifdef OLED_ENABLE
 static void render_logo(void) {
     static const char PROGMEM qmk_logo[] = {
         0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94,
