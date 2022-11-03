@@ -63,7 +63,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_MAIN] = LAYOUT(
         KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_DEL,  KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  C_DISPLAY_TIMER,
-        KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_BSPC, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  XXXXXXX,
+        KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_BSPC, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  LOGO,
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_BSPC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC, XXXXXXX,
         KC_NUBS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_ENT,  KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, KC_BSLS, XXXXXXX,
         KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_ENT,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_UP,   KC_SLSH, KC_LSFT, KC_PGUP,
@@ -181,6 +181,25 @@ static void toggle_macos_mode(void) {
     user_config.macos_mode ^= 1; // Toggles the status
     keymap_config.swap_lalt_lgui = user_config.macos_mode;
 }
+#ifdef OLED_ENABLE
+static void apply_oled_brightness(void) {
+    oled_set_brightness(user_config.oled_brightness * 36);
+}
+
+static void increase_oled_brightness(void) {
+    if (user_config.oled_brightness < 7) {
+        user_config.oled_brightness += 1;
+    }
+    apply_oled_brightness();
+}
+
+static void decrease_oled_brightness(void) {
+    if (user_config.oled_brightness > 0) {
+        user_config.oled_brightness -= 1;
+    }
+    apply_oled_brightness();
+}
+#endif
 
 // static bool is_mod_pressed(uint16_t keycode) {
 //     return keyboard_report->mods & (MOD_BIT(keycode));
@@ -194,11 +213,18 @@ static void toggle_macos_mode(void) {
 // Keyboard init
 void keyboard_post_init_user(void) {
 
+#ifdef OLED_ENABLE
+    debug_enable=true;
+    debug_matrix=true;
+    debug_keyboard=true;
+    //debug_mouse=true;
+#endif
+
     // Read the user config from EEPROM
     user_config.raw = eeconfig_read_user();
     keymap_config.swap_lalt_lgui = user_config.macos_mode;
 #ifdef OLED_ENABLE
-    oled_set_brightness(user_config.oled_brightness * 36);
+    apply_oled_brightness();
 #endif
 
     // Set time
@@ -279,10 +305,7 @@ void process_settings(uint16_t keycode) {
                     break;
                 case SETTINGS_OLED_BRIGHTNESS:
 #ifdef OLED_ENABLE
-                    if (user_config.oled_brightness < 7) {
-                        user_config.oled_brightness += 1;
-                    }
-                    oled_set_brightness(user_config.oled_brightness * 36);
+                    increase_oled_brightness();
 #endif
                     break;
                 case SETTINGS_DISPLAY_CLOCK:
@@ -298,10 +321,7 @@ void process_settings(uint16_t keycode) {
                     break;
                 case SETTINGS_OLED_BRIGHTNESS:
 #ifdef OLED_ENABLE
-                    if (user_config.oled_brightness > 0) {
-                        user_config.oled_brightness -= 1;
-                    }
-                    oled_set_brightness(user_config.oled_brightness * 36);
+                    decrease_oled_brightness();
 #endif
                     break;
                 case SETTINGS_DISPLAY_CLOCK:
@@ -442,15 +462,10 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             case _FN:
 #ifdef OLED_ENABLE
                 if (clockwise){
-                    if (user_config.oled_brightness < 7) {
-                        user_config.oled_brightness += 1;
-                    }
+                    increase_oled_brightness();
                 } else {
-                    if (user_config.oled_brightness > 1) {
-                        user_config.oled_brightness -= 1;
-                    }
+                    decrease_oled_brightness();
                 }
-                oled_set_brightness(user_config.oled_brightness * 36);
                 break;
 #else
                 if (clockwise){
