@@ -46,6 +46,7 @@ enum layer_names {
 enum custom_keycodes {
     LOGO = SAFE_RANGE,
     SETTINGS,
+    // Macro string
     C_M1,
     C_M2,
     C_M3,
@@ -56,6 +57,17 @@ enum custom_keycodes {
     C_M8,
     C_M9,
     C_M10,
+    // Macro functions
+    C_M11,
+    C_M12,
+    C_M13,
+    C_M14,
+    C_M15,
+    C_M16,
+    C_M17,
+    C_M18,
+    C_M19,
+    C_M20,
     C_DISPLAY_TIMER,
 };
 
@@ -95,9 +107,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_FN] = LAYOUT(
         SETTINGS, KC_F13,      KC_F14,       KC_F15,       KC_F16,  KC_F17,  KC_INS,  KC_F18,  KC_F19,  KC_F20,  KC_F21,  KC_F22,  KC_F23,  KC_F24,  KC_PSCR,
-        LOGO,     C_M1,        C_M2,         C_M3,         C_M4,    C_M5,    KC_F15,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX,  C_M6,        C_M7,         C_M8,         C_M9,    C_M10,   KC_F14,  C_M1,    C_M2,    C_M3,    C_M4,    C_M5,    XXXXXXX, XXXXXXX, XXXXXXX,
-        KC_NUBS,  KC_NUBS,     S(KC_NUBS),   XXXXXXX,      XXXXXXX, XXXXXXX, KC_VOLU, C_M6,    C_M7,    C_M8,    C_M9,    C_M10,   XXXXXXX, XXXXXXX, KC_CAPS,
+        LOGO,     C_M1,        C_M2,         C_M3,         C_M4,    C_M5,    KC_F15,  XXXXXXX, C_M11,   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        XXXXXXX,  C_M6,        C_M7,         C_M8,         C_M9,    C_M10,   KC_F14,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        KC_NUBS,  KC_NUBS,     S(KC_NUBS),   XXXXXXX,      XXXXXXX, XXXXXXX, KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_CAPS,
         KC_LSFT,  LCTL(KC_UP), LCA(KC_LEFT), LCA(KC_RGHT), XXXXXXX, LOGO,    KC_VOLD, XXXXXXX, XXXXXXX, KC_MPRV, KC_HOME, KC_UP,   KC_END,  XXXXXXX, XXXXXXX,
         MO(_FN),  MO(_NUM),    KC_APP,       KC_MEH,       KC_MPLY, KC_MPLY, KC_MUTE, KC_MSTP, KC_MSTP, KC_MNXT, KC_LEFT, KC_DOWN, KC_RGHT, XXXXXXX, XXXXXXX),
 
@@ -438,6 +450,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
     }
 #endif
+
+    // Macro functions (C_M11 -> C_M20)
+    switch (keycode) {
+        case C_M11:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LGUI("x") "``" SS_TAP(X_LEFT) SS_LGUI("v") SS_TAP(X_RIGHT));
+            }
+            break;
+    }
+
     return true;
 };
 
